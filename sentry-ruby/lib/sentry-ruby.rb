@@ -25,7 +25,7 @@ require "sentry/cron/monitor_check_ins"
 
 [
   "sentry/rake",
-  "sentry/rack",
+  "sentry/rack"
 ].each do |lib|
   begin
     require lib
@@ -576,3 +576,4 @@ end
 require "sentry/net/http"
 require "sentry/redis"
 require "sentry/puma"
+require "sentry/clockwork"

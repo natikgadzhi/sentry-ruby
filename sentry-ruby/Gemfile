@@ -19,7 +19,12 @@ gem "timecop"
 gem "simplecov"
 gem "simplecov-cobertura", "~> 1.4"
 gem "rexml"
+
+# Profiling support
 gem "stackprof" unless RUBY_PLATFORM == "java"
+
+# Crons
+gem "clockwork"
 
 ruby_version = Gem::Version.new(RUBY_VERSION)
 

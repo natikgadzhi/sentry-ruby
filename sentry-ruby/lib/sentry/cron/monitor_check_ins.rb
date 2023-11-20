@@ -4,7 +4,22 @@ module Sentry
       MAX_SLUG_LENGTH = 50
 
       module Patch
+        # Sidekiq and friends will trigger perform on a job.
         def perform(*args)
+          wrap_cron_job do
+            super
+          end
+        end
+
+        # Clockwork invokes Event.execute.
+        def execute
+          wrap_cron_job do
+            super
+          end
+        end
+
+        # Executes the actual work wrapped in the monitor check-in.
+        def wrap_cron_job(&block)
           slug = self.class.sentry_monitor_slug
           monitor_config = self.class.sentry_monitor_config
 
@@ -13,7 +28,7 @@ module Sentry
                                                 monitor_config: monitor_config)
 
           start = Sentry.utc_now.to_i
-          ret = super
+          res = block.call
           duration = Sentry.utc_now.to_i - start
 
           Sentry.capture_check_in(slug,
@@ -22,7 +37,7 @@ module Sentry
                                   duration: duration,
                                   monitor_config: monitor_config)
 
-          ret
+          res
         rescue Exception
           duration = Sentry.utc_now.to_i - start
 
